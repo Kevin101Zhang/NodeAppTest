@@ -1,8 +1,10 @@
 require("dotenv").config();
+var Spotify = require("node-spotify-api");
+var keys = require("./keys.js");
+var spotify = new Spotify(keys.spotify);
 var axios = require("axios");
 const fs = require('fs');
-
-
+var hr = "\n🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡 🤡\n";
 
 var EverythingFunction = function () {
     this.findConcert = function (artist) {
@@ -20,6 +22,7 @@ var EverythingFunction = function () {
                 ]
 
                 console.log(showDatabase);
+                console.log(hr);
             }
         );
         fs.appendFile('random.txt', 'URL', (err) => {
@@ -29,9 +32,35 @@ var EverythingFunction = function () {
     };
 
 
-    this.findSong = function () {
-        //sporitfy API
+    this.findSong = function song(songName) {
+        spotify.search(
+            {
+                type: "track",
+                query: songName,
+                limit: 1
+            },
+            function (err, data) {
+                if (err) {
+                    return console.log("Error occurred: " + err);
+                }
 
+                var x = data.tracks.items[0];
+                var allArtist = [];
+                for (i = 0; i < x.artists.length; i++) {
+                    allArtist.push(x.artists[i].name);
+                }
+
+                var showDatabase = [
+                    `Song Name: ${x.name}`,
+                    `Artist: ${allArtist.join(", ")}`,
+                    `Album: ${x.album.name}`,
+                    `Preview ${x.preview_url}`
+
+                ]
+                console.log(showDatabase);
+                console.log(hr);
+            }
+        );
     }
 
     this.findMovie = function (movie) {
@@ -54,6 +83,7 @@ var EverythingFunction = function () {
                 ]
 
                 console.log(MovieDatabase);
+                console.log(hr);
             }
         );
         fs.appendFile('random.txt', 'URL', (err) => {
@@ -62,18 +92,25 @@ var EverythingFunction = function () {
         });
     };
 
-};
+    this.doRandom = function () {
+        var randomNum = Math.floor(Math.random()*3);
+        var functionArray = [
+            this.findConcert(),
+            this.findSong("The Sign"),
+            this.findMovie() 
+        ];
+        var randomReturn = functionArray[randomNum];
+
+        console.log(randomReturn);
+
+        fs.appendFile('random.txt', 'URL', (err) => {
+            if (err) throw err;
+            console.log('Sucess random');
+        });
+
+    };
 
 
-module.exports = EverythingFunction;
+}
+    module.exports = EverythingFunction;
 
-
-
-// * Title of the movie.
-//   * Year the movie came out.
-//   * IMDB Rating of the movie.
-//   * Rotten Tomatoes Rating of the movie.
-//   * Country where the movie was produced.
-//   * Language of the movie.
-//   * Plot of the movie.
-//   * Actors in the movie.
